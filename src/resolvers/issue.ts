@@ -5,7 +5,9 @@ import { Arg, Ctx, Int, Mutation, Query, Resolver } from 'type-graphql';
 @Resolver()
 export class IssueResolver {
   @Query(() => [Issue])
-  issues( @Ctx() { em }: MyContext): Promise<Issue[]> {
+  issues(
+    @Ctx() { em }: MyContext
+  ): Promise<Issue[]> {
     return em.find(Issue, {});
   }
 
