@@ -8,18 +8,48 @@ import { buildSchema } from 'type-graphql'
 import { HelloResolver } from './resolvers/hello';
 import { IssueResolver } from './resolvers/issue';
 import { UserResolver } from './resolvers/user';
+import session from 'express-session';
+import connectPg from 'connect-pg-simple'
+import { psswd } from './psswd';
 
 const main = async () => {
   const orm = await MikroORM.init(mikroOrmConfig);
   await orm.getMigrator().up();
   
   const app = express();
+
+  const PgStore = connectPg(session);
+
+  const conObject = {
+    user: 'postgres',
+    password: psswd,
+    host: 'localhost',// or whatever it may be
+    port: 5432,
+    database: 'issuetracker'
+  };
+
+  app.use(session({
+    name: 'cid',
+    store: new (PgStore)({
+      conObject: conObject
+    }),
+    secret: 'qwertyuiop',
+    resave: false,
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: __prod__
+    },
+    saveUninitialized: false
+  }));
+
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [HelloResolver, IssueResolver, UserResolver],
       validate: false
     }),
-    context: () => ({ em: orm.em })
+    context: ({ req, res }) => ({ em: orm.em, req, res })
   });
 
   apolloServer.applyMiddleware({ app });
