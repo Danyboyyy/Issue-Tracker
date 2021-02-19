@@ -11,6 +11,7 @@ import { UserResolver } from './resolvers/user';
 import session from 'express-session';
 import connectPg from 'connect-pg-simple'
 import { psswd } from './psswd';
+import { MyContext } from './types';
 
 const main = async () => {
   const orm = await MikroORM.init(mikroOrmConfig);
@@ -49,7 +50,7 @@ const main = async () => {
       resolvers: [HelloResolver, IssueResolver, UserResolver],
       validate: false
     }),
-    context: ({ req, res }) => ({ em: orm.em, req, res })
+    context: ({ req, res }): MyContext => ({ em: orm.em, req, res })
   });
 
   apolloServer.applyMiddleware({ app });

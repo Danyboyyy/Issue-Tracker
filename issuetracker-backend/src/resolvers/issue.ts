@@ -1,6 +1,6 @@
 import { Issue } from '../entities/Issue';
 import { MyContext } from '../types';
-import { Arg, Ctx, Int, Mutation, Query, Resolver } from 'type-graphql'; 
+import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql'; 
 
 @Resolver()
 export class IssueResolver {
