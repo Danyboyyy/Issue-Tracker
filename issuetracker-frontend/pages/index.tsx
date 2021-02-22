@@ -1,11 +1,9 @@
-import { Modal, Button, Icon } from 'semantic-ui-react'
+import React from 'react'
 
-export default function Home() {
+const Home = () => {
   return (
-    <div>Hello World
-      <Modal>
-        e
-      </Modal>
-    </div>
+    <div>hello world</div>
   )
 }
+
+export default Home;
