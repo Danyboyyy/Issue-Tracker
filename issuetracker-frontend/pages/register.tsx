@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { useForm, Resolver } from 'react-hook-form';
+import { useMutation } from 'urql';
 import Input from '../components/Input';
 import Wrapper from '../components/Wrapper';
 
@@ -23,11 +24,32 @@ const resolver: Resolver<FormValues> = async (values) => {
   };
 };
 
-export default function App() {
+const REGISTER_MUT = `
+mutation Register($username: String!, $password: String!){
+  register(options: { username: $username, password: $password }) {
+    errors {
+      field
+      message
+    }
+    user {
+      id
+      username
+    }
+  }
+}
+`;
+
+const Register = () => {
   const { register, handleSubmit, errors } = useForm<FormValues>({
     resolver: resolver,
   });
-  const onSubmit = handleSubmit((data) => alert(JSON.stringify(data)));
+
+  const [, reg] = useMutation(REGISTER_MUT);
+
+  const onSubmit = handleSubmit((data) => {
+    console.log(data);
+    reg(data);
+  }, (err) => {console.log(err)});
 
   return (
     <Wrapper>
@@ -59,6 +81,7 @@ export default function App() {
           label="Password"
           ref={register}
           errors={errors}
+          type="password"
         />  
 
         <Button variant="primary" type="submit">
@@ -68,3 +91,5 @@ export default function App() {
     </Wrapper>
   );
 }
+
+export default Register;
