@@ -21,7 +21,12 @@ const Input = React.forwardRef<HTMLInputElement, Props>((props, ref) => {
         ref={ref}
         type={props.type}
       />
-      {props.errors?.username && <p>{props.errors.username.message}</p>}
+      {
+        props.name == "username" ? 
+          props.errors?.username && <p>{props.errors.username.message}</p>
+        :
+          props.errors?.password && <p>{props.errors.password.message}</p>
+      }
     </Form.Group>
   )
 });
