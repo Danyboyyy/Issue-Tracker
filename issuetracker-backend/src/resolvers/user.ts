@@ -60,7 +60,7 @@ export class UserResolver {
       }
     }
 
-    if (options.username.length <= 3) {
+    if (options.password.length <= 3) {
       return {
         errors: [
           {

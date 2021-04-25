@@ -12,6 +12,7 @@ import session from 'express-session';
 import connectPg from 'connect-pg-simple'
 import { psswd } from './psswd';
 import { MyContext } from './types';
+import cors from 'cors';
 
 const main = async () => {
   const orm = await MikroORM.init(mikroOrmConfig);
@@ -20,6 +21,11 @@ const main = async () => {
   const app = express();
 
   const PgStore = connectPg(session);
+
+  app.use(cors({
+    origin: "http://localhost:3000",
+    credentials: true
+  }));
 
   const conObject = {
     user: 'postgres',
@@ -53,7 +59,10 @@ const main = async () => {
     context: ({ req, res }): MyContext => ({ em: orm.em, req, res })
   });
 
-  apolloServer.applyMiddleware({ app });
+  apolloServer.applyMiddleware({
+    app,
+    cors: false
+  });
 
   
   app.listen(4000, () => {

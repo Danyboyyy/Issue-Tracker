@@ -1,9 +1,10 @@
 import React from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { useForm, Resolver } from 'react-hook-form';
-import { useMutation } from 'urql';
-import Input from '../components/Input';
 import Wrapper from '../components/Wrapper';
+import { useRegisterMutation } from '../generated/graphql';
+import { toErrorMap } from '../utils/toErrorMap';
+import { useRouter } from 'next/router';
 
 export type FormValues = {
   username: string;
@@ -12,7 +13,7 @@ export type FormValues = {
 
 const resolver: Resolver<FormValues> = async (values) => {
   return {
-    values: !values.username || values.password ? {} : values,
+    values: !values.username || !values.password ? {} : values,
     errors: 
       !values.username ?
         {
@@ -34,37 +35,32 @@ const resolver: Resolver<FormValues> = async (values) => {
   };
 };
 
-const REGISTER_MUT = `
-mutation Register($username: String!, $password: String!){
-  register(options: { username: $username, password: $password }) {
-    errors {
-      field
-      message
-    }
-    user {
-      id
-      username
-    }
-  }
-}
-`;
-
 const Register = () => {
-  const { register, handleSubmit, errors } = useForm<FormValues>({
+  const router = useRouter();
+  const { register, handleSubmit, setError, errors } = useForm<FormValues>({
     resolver: resolver,
   });
 
-  const [, reg] = useMutation(REGISTER_MUT);
+  const [, reg] = useRegisterMutation();
 
-  const onSubmit = handleSubmit((data) => {
-    console.log(data);
-    reg(data);
+  const onSubmit = handleSubmit(async (data) => {
+    const response = await reg(data);
+    if (response.data?.register.errors) {
+      const err = response.data.register.errors[0];
+      if (err.field == "username")
+        setError("username", { message: err.message });
+      else
+        setError("password", { message: err.message })
+    }
+    else if (response.data?.register.user) {
+      router.push("/");
+    }
   }, (err) => {console.log(err)});
 
   return (
     <Wrapper>
       <Form onSubmit={onSubmit}>
-        {/*}
+    
         <Form.Group>
           <Form.Label>Username</Form.Label>
           <Form.Control id="username" name="username" placeholder="Username" ref={register} />
@@ -74,9 +70,10 @@ const Register = () => {
         <Form.Group>
           <Form.Label>Password</Form.Label>
           <Form.Control type="password" id="password" name="password" placeholder="Password" ref={register} />
+          {errors?.password && <p>{errors.password.message}</p>}
         </Form.Group>
-        */}
-
+      
+        {/*
         <Input
           name="username"
           placeholder="Username"
@@ -92,7 +89,7 @@ const Register = () => {
           ref={register}
           errors={errors}
           type="password"
-        />  
+        />  */}
 
         <Button variant="primary" type="submit">
           Submit
