@@ -10,6 +10,7 @@
     "gen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
+    "@urql/exchange-graphcache": "^4.0.0",
     "bootstrap": "^4.4.1",
     "graphql": "^15.5.0",
     "next": "latest",

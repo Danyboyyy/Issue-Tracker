@@ -1,22 +1,47 @@
 import React from 'react'
-import { Navbar, Nav } from 'react-bootstrap';
+import { Navbar, Nav, Button } from 'react-bootstrap';
 import Link from 'next/link';
+import { useMeQuery } from '../generated/graphql';
 
 export const NavBar: React.FC = ({}) => {
+  const [{data, fetching}] = useMeQuery();
+  let body = null;
+
+  if (fetching) {
+    
+  }
+  else if (!data?.me) {
+    body = (
+      <>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse className="justify-content-end" id="basic-navbar-nav">
+          <Nav>
+            <Link href="/login" passHref>
+              <Nav.Link>Login</Nav.Link>
+            </Link>
+            <Link href="/register" passHref>
+              <Nav.Link>Register</Nav.Link>
+            </Link>
+          </Nav>
+        </Navbar.Collapse>
+      </>
+    )
+  }
+  else {
+    body = (
+      <Nav className="ml-auto">
+        <Navbar.Text >
+          Signed in as: <a>{data.me.username}</a>
+        </Navbar.Text>
+        <Button variant="outline-dark" className="ml-3">Logout</Button>
+      </Nav>
+    )
+  }
+
   return (
     <Navbar bg="light" expand="lg">
-      <Navbar.Brand href="#home">React-Bootstrap</Navbar.Brand>
-      <Navbar.Toggle aria-controls="basic-navbar-nav" />
-      <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className="ml-auto">
-          <Link href="/login" passHref>
-            <Nav.Link>Login</Nav.Link>
-          </Link>
-          <Link href="/register" passHref>
-            <Nav.Link>Register</Nav.Link>
-          </Link>
-        </Nav>
-      </Navbar.Collapse>
+      <Navbar.Brand href="#home">Issue-Tracker</Navbar.Brand>
+      {body}
     </Navbar>
   )
 }
