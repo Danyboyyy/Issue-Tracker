@@ -7,13 +7,13 @@ interface Props {
 
 const Wrapper = ({ children }) => {
   return (
-   <Container className='mt-5'>
-     <Row> 
-       <Col>
+   <div className="App">
+     <div className="outer"> 
+       <div className="inner">
         {children}
-       </Col>
-     </Row>
-   </Container> 
+       </div>
+     </div>
+   </div> 
   );
 }
 

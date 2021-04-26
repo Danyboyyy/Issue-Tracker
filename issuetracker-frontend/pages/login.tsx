@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { useForm, Resolver } from 'react-hook-form';
 import Wrapper from '../components/Wrapper';
-import { useRegisterMutation } from '../generated/graphql';
+import { useLoginMutation } from '../generated/graphql';
 import { useRouter } from 'next/router';
 
 export type FormValues = {
@@ -17,16 +17,14 @@ const resolver: Resolver<FormValues> = async (values) => {
       !values.username ?
         {
           username: {
-            type: 'required',
-            message: 'This is required.'
+            type: 'required'
           }
         }
       : 
       !values.password ?
         {
           password: {
-            type: 'required',
-            message: 'This is required.'
+            type: 'required'
           }
         }
       :
@@ -34,50 +32,50 @@ const resolver: Resolver<FormValues> = async (values) => {
   };
 };
 
-const Register = () => {
+const Login = () => {
   const router = useRouter();
   const { register, handleSubmit, setError, errors } = useForm<FormValues>({
     resolver: resolver,
   });
 
-  const [, reg] = useRegisterMutation();
+  const [, login] = useLoginMutation();
 
   const onSubmit = handleSubmit(async (data) => {
-    const response = await reg(data);
-    if (response.data?.register.errors) {
-      const err = response.data.register.errors[0];
+    const response = await login(data);
+    if (response.data?.login.errors) {
+      const err = response.data.login.errors[0];
       if (err.field == "username")
         setError("username", { message: err.message });
       else
         setError("password", { message: err.message })
     }
-    else if (response.data?.register.user) {
+    else if (response.data?.login.user) {
       router.push("/");
     }
   }, (err) => {console.log(err)});
 
   return (
     <Wrapper>
-      <h3>Register</h3>
+      <h3>Login</h3>
       <Form onSubmit={onSubmit}>
+       {errors?.username && <p>{errors.username.message}</p>}
+       {errors?.password && <p>{errors.password.message}</p>}
         <Form.Group>
           <Form.Label>Username</Form.Label>
           <Form.Control id="username" name="username" placeholder="Username" ref={register} />
-          {errors?.username && <p>{errors.username.message}</p>}
         </Form.Group>
 
         <Form.Group>
           <Form.Label>Password</Form.Label>
           <Form.Control type="password" id="password" name="password" placeholder="Password" ref={register} />
-          {errors?.password && <p>{errors.password.message}</p>}
         </Form.Group>
     
         <Button variant="primary" type="submit" className="btn btn-dark btn-lg btn-block">
-          Register
+          Submit
         </Button>
       </Form>
     </Wrapper>
   );
 }
 
-export default Register;
+export default Login;
