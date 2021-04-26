@@ -1,9 +1,10 @@
 import React from 'react'
 import { Navbar, Nav, Button } from 'react-bootstrap';
 import Link from 'next/link';
-import { useMeQuery } from '../generated/graphql';
+import { useLogoutMutation, useMeQuery } from '../generated/graphql';
 
 export const NavBar: React.FC = ({}) => {
+  const [{fetching: logoutFetching}, logout] = useLogoutMutation();
   const [{data, fetching}] = useMeQuery();
   let body = null;
 
@@ -33,7 +34,7 @@ export const NavBar: React.FC = ({}) => {
         <Navbar.Text >
           Signed in as: <a>{data.me.username}</a>
         </Navbar.Text>
-        <Button variant="outline-dark" className="ml-3">Logout</Button>
+        <Button onClick={() => { logout();} } variant="outline-dark" className="ml-3">Logout</Button>
       </Nav>
     )
   }

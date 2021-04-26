@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider, createClient, dedupExchange, fetchExchange } from 'urql';
 import { Cache, cacheExchange, QueryInput } from '@urql/exchange-graphcache';
 import '../style/index.css'
-import { LoginMutation, MeDocument, MeQuery, RegisterMutation } from '../generated/graphql';
+import { LoginMutation, LogoutMutation, MeDocument, MeQuery, RegisterMutation } from '../generated/graphql';
 
 function betterQuery<Result, Query>(
   cache: Cache,
@@ -21,6 +21,14 @@ const client = createClient({
   exchanges: [dedupExchange, cacheExchange({
     updates: {
       Mutation: {
+        logout: (_result, args, cache, info) => {
+          betterQuery<LogoutMutation, MeQuery>(
+            cache,
+            { query: MeDocument },
+            _result,
+            () => ({ me: null })
+          );
+        },
         login: (_result, args, cache, info) => {
           betterQuery<LoginMutation, MeQuery>(
             cache,
@@ -36,7 +44,7 @@ const client = createClient({
                 };
               }
             }
-          )
+          );
         },
         register: (_result, args, cache, info) => {
           betterQuery<RegisterMutation, MeQuery>(
@@ -53,12 +61,12 @@ const client = createClient({
                 };
               }
             }
-          )
+          );
         }
       }
     }
   }), fetchExchange]
-})
+});
 
 export default function MyApp({ Component, pageProps }: any) {
   return (
