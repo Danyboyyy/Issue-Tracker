@@ -1,5 +1,20 @@
 import { Issue } from '../entities/Issue';
-import { Arg, Mutation, Query, Resolver } from 'type-graphql'; 
+import { Arg, Ctx, Field, InputType, Mutation, Query, Resolver, UseMiddleware } from 'type-graphql'; 
+import { MyContext } from 'src/types';
+import { getConnection } from 'typeorm';
+import { isAuth } from '../middleware/isAuth';
+
+@InputType()
+class IssueInput {
+  @Field()
+  title: string;
+  
+  @Field()
+  description: string;
+
+  @Field()
+  category: string;
+}
 
 @Resolver()
 export class IssueResolver {
@@ -16,10 +31,25 @@ export class IssueResolver {
   }
 
   @Mutation(() => Issue)
+  @UseMiddleware(isAuth)
   async createIssue( 
-    @Arg('title') title: string
+    @Arg('input') input: IssueInput,
+    @Ctx() { req }: MyContext
   ): Promise<Issue> {
-    return Issue.create({ title }).save();
+    let issue;
+    const result = await getConnection()
+      .createQueryBuilder()
+      .insert()
+      .into(Issue)
+      .values({
+        ...input,
+        creatorId: req.session.userId
+      })
+      .returning('*')
+      .execute();
+      issue = result.raw[0];
+
+    return issue;
   }
 
   @Mutation(() => Issue)
