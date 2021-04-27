@@ -2,10 +2,14 @@ import React from 'react'
 import { Navbar, Nav, Button } from 'react-bootstrap';
 import Link from 'next/link';
 import { useLogoutMutation, useMeQuery } from '../generated/graphql';
+import { isServer } from '../utils/isServer';
 
 export const NavBar: React.FC = ({}) => {
-  const [{fetching: logoutFetching}, logout] = useLogoutMutation();
-  const [{data, fetching}] = useMeQuery();
+  const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
+  const [{ data, fetching }] = useMeQuery({
+    pause: isServer()
+  });
+
   let body = null;
 
   if (fetching) {

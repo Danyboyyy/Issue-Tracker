@@ -4,6 +4,8 @@ import { useForm, Resolver } from 'react-hook-form';
 import Wrapper from '../components/Wrapper';
 import { useRegisterMutation } from '../generated/graphql';
 import { useRouter } from 'next/router';
+import { withUrqlClient } from 'next-urql';
+import { createUrqlClient } from '../utils/createUrqlClient';
 
 export type FormValues = {
   username: string;
@@ -80,4 +82,4 @@ const Register = () => {
   );
 }
 
-export default Register;
+export default withUrqlClient(createUrqlClient)(Register);
