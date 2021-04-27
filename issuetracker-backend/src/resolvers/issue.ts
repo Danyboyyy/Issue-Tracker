@@ -1,47 +1,39 @@
 import { Issue } from '../entities/Issue';
-import { MyContext } from '../types';
-import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql'; 
+import { Arg, Mutation, Query, Resolver } from 'type-graphql'; 
 
 @Resolver()
 export class IssueResolver {
   @Query(() => [Issue])
-  issues(
-    @Ctx() { em }: MyContext
-  ): Promise<Issue[]> {
-    return em.find(Issue, {});
+  issues(): Promise<Issue[]> {
+    return Issue.find();
   }
 
   @Query(() => Issue, { nullable: true })
   issue( 
-    @Arg('id') id: number,
-    @Ctx() { em }: MyContext
-  ): Promise<Issue | null> {
-    return em.findOne(Issue, { id });
+    @Arg('id') id: number
+  ): Promise<Issue | undefined> {
+    return Issue.findOne(id);
   }
 
   @Mutation(() => Issue)
   async createIssue( 
-    @Arg('title') title: string,
-    @Ctx() { em }: MyContext
+    @Arg('title') title: string
   ): Promise<Issue> {
-    const issue = em.create(Issue, { title })
-    await em.persistAndFlush(issue);
-    return issue;
+    return Issue.create({ title }).save();
   }
 
   @Mutation(() => Issue)
   async updateIssue( 
     @Arg('id') id: number,
     @Arg('title', () => String, { nullable: true }) title: string,
-    @Ctx() { em }: MyContext
   ): Promise<Issue | null> {
-    const issue = await em.findOne(Issue, { id });
+    const issue = await Issue.findOne(id);
+
     if (!issue) {
       return null;
     }
     if (typeof title !== undefined) {
-      issue.title = title;
-      await em.persistAndFlush(issue)
+      await Issue.update({ id }, { title });
     }
     return issue;
   }
@@ -49,9 +41,8 @@ export class IssueResolver {
   @Mutation(() => Boolean)
   async deleteIssue( 
     @Arg('id') id: number,
-    @Ctx() { em }: MyContext
   ): Promise<boolean> {
-    await em.nativeDelete(Issue, { id });
+    await Issue.delete(id);
     return true;
   }
 }

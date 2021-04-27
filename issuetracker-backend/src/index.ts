@@ -1,7 +1,5 @@
 import 'reflect-metadata'
-import { MikroORM } from '@mikro-orm/core';
 import { COOKIE_NAME, __prod__ } from './constants';
-import mikroOrmConfig from './mikro-orm.config';
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql'
@@ -13,10 +11,20 @@ import connectPg from 'connect-pg-simple'
 import { psswd } from './psswd';
 import { MyContext } from './types';
 import cors from 'cors';
+import { createConnection } from 'typeorm'
+import { User } from './entities/User';
+import { Issue } from './entities/Issue';
 
 const main = async () => {
-  const orm = await MikroORM.init(mikroOrmConfig);
-  await orm.getMigrator().up();
+  await createConnection({
+    type: 'postgres',
+    database: 'issuetracker2',
+    username: 'postgres',
+    password: psswd,
+    logging: true,
+    synchronize: true,
+    entities: [User, Issue]
+  });
   
   const app = express();
 
@@ -56,7 +64,7 @@ const main = async () => {
       resolvers: [HelloResolver, IssueResolver, UserResolver],
       validate: false
     }),
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res })
+    context: ({ req, res }): MyContext => ({ req, res })
   });
 
   apolloServer.applyMiddleware({
