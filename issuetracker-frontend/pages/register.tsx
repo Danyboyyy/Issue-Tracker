@@ -9,12 +9,13 @@ import { createUrqlClient } from '../utils/createUrqlClient';
 
 export type FormValues = {
   username: string;
+  email: string;
   password: string;
 };
 
 const resolver: Resolver<FormValues> = async (values) => {
   return {
-    values: !values.username || !values.password ? {} : values,
+    values: !values.username || !values.password || !values.email ? {} : values,
     errors: 
       !values.username ?
         {
@@ -24,11 +25,19 @@ const resolver: Resolver<FormValues> = async (values) => {
           }
         }
       : 
-      !values.password ?
+      !values.email ?
+        {
+          email: {
+            type: 'required',
+            message: 'This is required.'
+          }
+        }
+      :
+      !values.password ? 
         {
           password: {
             type: 'required',
-            message: 'This is required.'
+            message: 'This is required'
           }
         }
       :
@@ -45,13 +54,15 @@ const Register = () => {
   const [, reg] = useRegisterMutation();
 
   const onSubmit = handleSubmit(async (data) => {
-    const response = await reg(data);
+    const response = await reg({ options: data });
     if (response.data?.register.errors) {
       const err = response.data.register.errors[0];
-      if (err.field == "username")
+      if (err.field === "username")
         setError("username", { message: err.message });
+      else if (err.field === "email")
+        setError("email", { message: err.message })
       else
-        setError("password", { message: err.message })
+        setError("password", { message: err.message });
     }
     else if (response.data?.register.user) {
       router.push("/");
@@ -66,6 +77,12 @@ const Register = () => {
           <Form.Label>Username</Form.Label>
           <Form.Control id="username" name="username" placeholder="Username" ref={register} />
           {errors?.username && <p>{errors.username.message}</p>}
+        </Form.Group>
+
+        <Form.Group>
+          <Form.Label>Email</Form.Label>
+          <Form.Control id="email" name="email" placeholder="Email" ref={register} />
+          {errors?.email && <p>{errors.email.message}</p>}
         </Form.Group>
 
         <Form.Group>

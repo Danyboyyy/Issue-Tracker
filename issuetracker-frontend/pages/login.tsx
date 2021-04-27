@@ -8,17 +8,17 @@ import { withUrqlClient } from 'next-urql';
 import { createUrqlClient } from '../utils/createUrqlClient';
 
 export type FormValues = {
-  username: string;
+  usernameOrEmail: string;
   password: string;
 };
 
 const resolver: Resolver<FormValues> = async (values) => {
   return {
-    values: !values.username || !values.password ? {} : values,
+    values: !values.usernameOrEmail || !values.password ? {} : values,
     errors: 
-      !values.username ?
+      !values.usernameOrEmail ?
         {
-          username: {
+          usernameOrEmail: {
             type: 'required'
           }
         }
@@ -46,8 +46,8 @@ const Login = () => {
     const response = await login(data);
     if (response.data?.login.errors) {
       const err = response.data.login.errors[0];
-      if (err.field == "username")
-        setError("username", { message: err.message });
+      if (err.field == "usernameOrEmail")
+        setError("usernameOrEmail", { message: err.message });
       else
         setError("password", { message: err.message })
     }
@@ -60,11 +60,11 @@ const Login = () => {
     <Wrapper>
       <h3>Login</h3>
       <Form onSubmit={onSubmit}>
-       {errors?.username && <p>{errors.username.message}</p>}
+       {errors?.usernameOrEmail && <p>{errors.usernameOrEmail.message}</p>}
        {errors?.password && <p>{errors.password.message}</p>}
         <Form.Group>
           <Form.Label>Username</Form.Label>
-          <Form.Control id="username" name="username" placeholder="Username" ref={register} />
+          <Form.Control id="usernameOrEmail" name="usernameOrEmail" placeholder="Username or Email" ref={register} />
         </Form.Group>
 
         <Form.Group>
