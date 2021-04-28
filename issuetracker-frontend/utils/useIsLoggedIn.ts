@@ -8,6 +8,6 @@ export const useIsLoggedIn = () => {
 
   useEffect(() => {
     if(!data?.me && !fetching)
-      router.replace('/login?next=' + router.pathname);
+      router.replace("/login?next=" + router.pathname);
   }, [fetching, data, router]);
 };
