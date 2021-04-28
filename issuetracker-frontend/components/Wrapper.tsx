@@ -1,11 +1,6 @@
 import React from 'react'
-import { Col, Container, Row } from 'react-bootstrap'
 
-interface Props {
-  
-}
-
-const Wrapper = ({ children }) => {
+const Wrapper: React.FC = ({ children }) => {
   return (
    <div className="App">
      <div className="outer"> 

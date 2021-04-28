@@ -1,0 +1,12 @@
+mutation CreateIssue($input: IssueInput!){
+  createIssue( input: $input ) {
+    id
+    title
+    description
+    category
+    completed
+    creatorId
+    createdAt
+    updatedAt
+  }
+}

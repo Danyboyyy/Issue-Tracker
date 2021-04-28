@@ -23,9 +23,19 @@ export type FieldError = {
 export type Issue = {
   __typename?: 'Issue';
   id: Scalars['Float'];
+  title: Scalars['String'];
+  description: Scalars['String'];
+  category: Scalars['String'];
+  completed: Scalars['Boolean'];
+  creatorId: Scalars['Float'];
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
+};
+
+export type IssueInput = {
   title: Scalars['String'];
+  description: Scalars['String'];
+  category: Scalars['String'];
 };
 
 export type Mutation = {
@@ -40,7 +50,7 @@ export type Mutation = {
 
 
 export type MutationCreateIssueArgs = {
-  title: Scalars['String'];
+  input: IssueInput;
 };
 
 
@@ -81,10 +91,10 @@ export type QueryIssueArgs = {
 export type User = {
   __typename?: 'User';
   id: Scalars['Float'];
-  createdAt: Scalars['String'];
-  updatedAt: Scalars['String'];
   username: Scalars['String'];
   email: Scalars['String'];
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
 };
 
 export type UserInput = {
@@ -102,6 +112,19 @@ export type UserResponse = {
 export type RegularUserFragment = (
   { __typename?: 'User' }
   & Pick<User, 'id' | 'username'>
+);
+
+export type CreateIssueMutationVariables = Exact<{
+  input: IssueInput;
+}>;
+
+
+export type CreateIssueMutation = (
+  { __typename?: 'Mutation' }
+  & { createIssue: (
+    { __typename?: 'Issue' }
+    & Pick<Issue, 'id' | 'title' | 'description' | 'category' | 'completed' | 'creatorId' | 'createdAt' | 'updatedAt'>
+  ) }
 );
 
 export type LoginMutationVariables = Exact<{
@@ -179,6 +202,24 @@ export const RegularUserFragmentDoc = gql`
   username
 }
     `;
+export const CreateIssueDocument = gql`
+    mutation CreateIssue($input: IssueInput!) {
+  createIssue(input: $input) {
+    id
+    title
+    description
+    category
+    completed
+    creatorId
+    createdAt
+    updatedAt
+  }
+}
+    `;
+
+export function useCreateIssueMutation() {
+  return Urql.useMutation<CreateIssueMutation, CreateIssueMutationVariables>(CreateIssueDocument);
+};
 export const LoginDocument = gql`
     mutation Login($usernameOrEmail: String!, $password: String!) {
   login(usernameOrEmail: $usernameOrEmail, password: $password) {
